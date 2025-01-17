@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import jakarta.persistence.*;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -13,7 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
-public class UserEntities {
+public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -24,9 +23,8 @@ public class UserEntities {
   @Column(nullable = false)
   private String password;
 
-  @ManyToMany(fetch = FetchType.EAGER)
-  @JoinTable(name = "user_Rol", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-
-  private Set<RoleEntities> roles;
+  @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.DETACH, CascadeType.REFRESH })
+  @JoinColumn(name = "idRol")
+  private Role idRolUser;
 
 }
