@@ -1,30 +1,38 @@
 package org.api.java.Backend_NodoNexus.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+import javax.validation.constraints.NotBlank;
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
+
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private String id;
 
-  @Column(nullable = false, unique = true)
-  private String username;
+  @NotBlank
+  @Column(unique = true, nullable = false)
+  private String userName;
 
+  @NotBlank
   @Column(nullable = false)
   private String password;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.DETACH, CascadeType.REFRESH })
-  @JoinColumn(name = "idRol")
-  private Role idRolUser;
+  @ManyToOne(fetch = FetchType.EAGER, optional = false)
+  @JoinColumn(name = "roleId", nullable = false)
+  private Role role;
 
+  public User(String userName, String password, Role role) {
+    this.userName = userName;
+    this.password = password;
+    this.role = role;
+  }
 }

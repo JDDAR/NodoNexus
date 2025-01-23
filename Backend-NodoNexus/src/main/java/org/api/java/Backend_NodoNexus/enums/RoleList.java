@@ -1,0 +1,5 @@
+package org.api.java.Backend_NodoNexus.enums;
+
+public enum RoleList {
+  ROLE_USER, ROLE_ADMIN
+}
