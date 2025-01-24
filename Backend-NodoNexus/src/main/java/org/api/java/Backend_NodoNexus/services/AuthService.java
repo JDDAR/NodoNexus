@@ -1,7 +1,6 @@
 package org.api.java.Backend_NodoNexus.services;
 
 import org.api.java.Backend_NodoNexus.entities.Role;
-import org.api.java.Backend_NodoNexus.enums.RoleList;
 
 import org.api.java.Backend_NodoNexus.dto.NewUserDto;
 import org.api.java.Backend_NodoNexus.entities.User;
@@ -46,20 +45,31 @@ public class AuthService {
   }
 
   // Metodo para registrar nuevo usuario
-  public void registerUser(NewUserDto newUserDto) {
+  public String registerUser(NewUserDto newUserDto) {
+    try {
+      // Verifica si el nombre ya existe
+      if (userService.existsByUserName(newUserDto.getUserName())) {
+        throw new IllegalArgumentException("El nombre del usuario ya existe");
+      }
+      // Obtiene el rol del usuario
+      Role roleUser = roleRepository.findById(newUserDto.getIdRol())
+          .orElseThrow(() -> new RuntimeException("Rol con ID " + newUserDto.getIdRol() + " no encontrado."));
 
-    // Verifica si el nombre ya existe
-    if (userService.existsByUserName(newUserDto.getUserName())) {
-      throw new IllegalArgumentException("El nombre del usuario ya existe");
+      // Creando nuevo usuario
+      User user = new User(newUserDto.getUserName(), passwordEncoder.encode(newUserDto.getPassword()), roleUser);
+      // Guardando al usuario
+      userService.save(user);
+
+      return String.format(
+          "Usuario registrado con éxito:\nID: %s\nNombre: %s\nRol: %s",
+          user.getId(), // Ahora se usa %s para el ID, ya que es un String
+          user.getUserName(),
+          roleUser.getName().name());
+
+    } catch (Exception e) {
+      e.printStackTrace(); // Muestra la excepción completa en el log
+      throw new RuntimeException("Error al registrar el usuario: " + e.getMessage());
     }
-
-    // Obtiene el rol del usuario
-    Role roleUser = roleRepository.findByName(RoleList.ROLE_USER)
-        .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
-    // Creando Nuevo usuario
-    User user = new User(newUserDto.getUserName(), passwordEncoder.encode(newUserDto.getPassword()), roleUser);
-    // Guardando al usuario
-    userService.save(user);
   }
 
 }

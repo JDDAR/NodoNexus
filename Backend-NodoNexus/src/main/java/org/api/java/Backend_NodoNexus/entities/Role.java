@@ -14,8 +14,9 @@ import lombok.NoArgsConstructor;
 public class Role {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer id;
+  private Long id;
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
+  @Enumerated(EnumType.ORDINAL) // 0,1,2....
   private RoleList name;
 }

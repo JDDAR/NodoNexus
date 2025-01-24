@@ -41,13 +41,16 @@ public class AuthController {
   @PostMapping("/register")
   public ResponseEntity<String> register(@Valid @RequestBody NewUserDto newUserDto, BindingResult bindingResult) {
     if (bindingResult.hasErrors()) {
-      return ResponseEntity.badRequest().body("Revise los campos");
+      // Si hay errores, devolvemos un mensaje claro
+      return ResponseEntity.badRequest().body("Revise los campos: " + bindingResult.getFieldErrors());
     }
     try {
-      authService.registerUser(newUserDto);
-      return ResponseEntity.status(HttpStatus.CREATED).body("Registrado");
+      String response = authService.registerUser(newUserDto);
+      return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(e.getMessage());
+    } catch (RuntimeException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
   }
 
