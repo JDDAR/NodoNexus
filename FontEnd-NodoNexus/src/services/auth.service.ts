@@ -1,7 +1,17 @@
 const baseUrl = "http://localhost:9090/api/";
-const loginUrl = baseUrl + "login";
+const loginUrl = `${baseUrl}login`;
 
-export const login = async (userName: string, password: string) => {
+export interface UserResponse {
+  id: number;
+  userName: string;
+  role: string;
+  token: string;
+}
+
+export const login = async (
+  userName: string,
+  password: string,
+): Promise<UserResponse> => {
   try {
     const response = await fetch(loginUrl, {
       method: "POST",
@@ -16,22 +26,14 @@ export const login = async (userName: string, password: string) => {
       throw new Error(`Error ${response.status}:${response.statusText}`);
     }
 
-    //Obtenemos los datos en formato JSON
-    const text = await response.text(); //Resivo el token como texto
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = text;
-    }
-    const token = data.token || data;
+    //Obtenemos los datos en formato json
+    const data: UserResponse = await response.json();
 
-    //Guardamos el tokenen localStorage
-    localStorage.setItem("token", token);
-    console.log("Token Obtenido: ", token);
+    //Guardamos el token en el localStorage
+    localStorage.setItem("token", data.token);
 
-    //Retornamos el token
-    return data.token;
+    //Retornamos los datos completos del usuario
+    return data;
   } catch (error) {
     console.log("Error al iniciar sesión: ", error);
     throw error;

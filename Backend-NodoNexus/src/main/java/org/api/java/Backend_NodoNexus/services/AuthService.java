@@ -1,8 +1,10 @@
 package org.api.java.Backend_NodoNexus.services;
 
+import org.api.java.Backend_NodoNexus.dto.request.NewUserDto;
+import org.api.java.Backend_NodoNexus.dto.response.AuthResponseDto;
+import org.api.java.Backend_NodoNexus.dto.response.UserDto;
 import org.api.java.Backend_NodoNexus.entities.Role;
 
-import org.api.java.Backend_NodoNexus.dto.NewUserDto;
 import org.api.java.Backend_NodoNexus.entities.User;
 import org.api.java.Backend_NodoNexus.jwt.JwtUtil;
 import org.api.java.Backend_NodoNexus.repositories.RoleRepository;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
+
   private final UserService userService;
   private final RoleRepository roleRepository;
   private final PasswordEncoder passwordEncoder;
@@ -32,19 +35,35 @@ public class AuthService {
     this.authenticationManagerBuilder = authenticationManagerBuilder;
   }
 
-  public String authenticate(String username, String password) {
+  public AuthResponseDto authenticate(String username, String password) {
+
     // Creo el token con las creedenciales proporcionadas
     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
         password);
+
     // Autentica el usuario utilizando autenticationManager
     Authentication authResult = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
     // Establece el contexto de seguridad
     SecurityContextHolder.getContext().setAuthentication(authResult);
+
     // Genera y devuelve el token
-    return jwtUtil.generateToken(authResult);
+    String token = jwtUtil.generateToken(authResult);
+
+    // Obtine la informacion del usuario:
+    User user = userService.findByUserName(username)
+        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+    String role = user.getRole().getName().name();
+
+    // Contruyendo el DTO con el token
+    UserDto userDto = new UserDto(user.getId(), user.getUserName(), role);
+
+    return new AuthResponseDto(token, userDto);
+
   }
 
-  // Metodo para registrar nuevo usuario
+  // Metodo para registrar nuevo usu
   public String registerUser(NewUserDto newUserDto) {
     try {
       // Verifica si el nombre ya existe

@@ -1,4 +1,4 @@
-package org.api.java.Backend_NodoNexus.dto;
+package org.api.java.Backend_NodoNexus.dto.request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

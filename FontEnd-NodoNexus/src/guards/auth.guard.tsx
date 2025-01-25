@@ -5,7 +5,10 @@ import { PublicRoutes } from "../models";
 
 export const AuthGuard = () => {
   const userState = useSelector((store: AppStore) => store.user);
-  return userState.userName ? (
+
+  const isAuthenticated = userState.token || localStorage.getItem("token");
+
+  return isAuthenticated ? (
     <Outlet />
   ) : (
     <Navigate replace to={PublicRoutes.LOGIN} />

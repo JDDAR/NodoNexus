@@ -1,9 +1,12 @@
 package org.api.java.Backend_NodoNexus.controllers;
 
-import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.api.java.Backend_NodoNexus.dto.LoginUserDto;
-import org.api.java.Backend_NodoNexus.dto.NewUserDto;
+import javax.validation.Valid;
+import org.api.java.Backend_NodoNexus.dto.request.LoginRequestDto;
+import org.api.java.Backend_NodoNexus.dto.request.NewUserDto;
+import org.api.java.Backend_NodoNexus.dto.response.AuthResponseDto;
 import org.api.java.Backend_NodoNexus.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,15 +29,19 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  public ResponseEntity<String> login(@Valid @RequestBody LoginUserDto loginUserDto, BindingResult bindingResult) {
+  public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginUserDto, BindingResult bindingResult) {
     if (bindingResult.hasErrors()) {
-      return ResponseEntity.badRequest().body("Revise sus credenciales");
+      Map<String, String> errorResponse = new HashMap<>();
+      errorResponse.put("error", "Revise sus credenciales");
+      return ResponseEntity.badRequest().body(errorResponse);
     }
     try {
-      String jwt = authService.authenticate(loginUserDto.getUserName(), loginUserDto.getPassword());
-      return ResponseEntity.ok(jwt);
+      AuthResponseDto authResponse = authService.authenticate(loginUserDto.getUserName(), loginUserDto.getPassword());
+      return ResponseEntity.ok(authResponse);
     } catch (Exception e) {
-      return ResponseEntity.badRequest().body(e.getMessage());
+      Map<String, String> errorResponse = new HashMap<>();
+      errorResponse.put("error", e.getMessage());
+      return ResponseEntity.badRequest().body(errorResponse);
     }
   }
 
