@@ -1,10 +1,10 @@
-import { SigningIn } from "./SigningIn";
+import SigninIn from "./SigningIn";
 
 const Login = () => {
   return (
     <>
       <div>Login NODO NEXUS</div>
-      <SigningIn />
+      <SigninIn />
     </>
   );
 };

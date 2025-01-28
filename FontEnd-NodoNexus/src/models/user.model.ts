@@ -1,6 +1,8 @@
 export interface UserInfo {
-  id: number;
-  userName: string;
-  role: string;
   token: string;
+  user: {
+    id: string;
+    userName: string;
+    role: string;
+  };
 }

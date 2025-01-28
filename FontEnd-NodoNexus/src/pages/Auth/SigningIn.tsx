@@ -1,23 +1,36 @@
 import React, { useState } from "react";
-import { login } from "../../../services/auth.service";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../../redux/store";
-import { setUser } from "../../../redux/states/userSlice";
+import { login } from "../../features/auth/auth.service";
+import { setUser } from "../../features/user/userSlice";
+import { useNavigate } from "react-router-dom";
+import { PrivateRoutes } from "../../router/routes";
 
 const SigninIn = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault(); // Evitamos el comportamiento por defecto del formulario
+    event.preventDefault();
 
     try {
+      //Utilizamos el servicio del login
       const userData = await login(username, password);
       dispatch(setUser(userData));
+
+      if (userData.user.role === "ADMIN") {
+        navigate(`/${PrivateRoutes.PRIVATE}/${PrivateRoutes.ADMINDASBOARD}`, {
+          replace: true,
+        });
+      } else if (userData.user.role === "CLIENT") {
+        navigate(`/${PrivateRoutes.PRIVATE}/${PrivateRoutes.CLIENTDASHBOARD}`);
+      } else {
+        console.log("Rol no reconocido: ", userData.user.role);
+        setError("Rol No valido. Conecte con soporte ...");
+      }
       console.log("Inicio de sesión exitoso. Datos de usuario:", userData);
-      alert("Sesión iniciada correctamente...");
     } catch (error) {
       setError(
         "Error al iniciar sesión. Por favor, verifica tus credenciales." +
@@ -25,7 +38,6 @@ const SigninIn = () => {
       );
     }
   };
-
   return (
     <div>
       <h1>Iniciar Sesión</h1>

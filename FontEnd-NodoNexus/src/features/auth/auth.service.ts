@@ -2,10 +2,12 @@ const baseUrl = "http://localhost:9090/api/";
 const loginUrl = `${baseUrl}login`;
 
 export interface UserResponse {
-  id: number;
-  userName: string;
-  role: string;
   token: string;
+  user: {
+    id: string;
+    userName: string;
+    role: string;
+  };
 }
 
 export const login = async (
@@ -28,9 +30,6 @@ export const login = async (
 
     //Obtenemos los datos en formato json
     const data: UserResponse = await response.json();
-
-    //Guardamos el token en el localStorage
-    localStorage.setItem("token", data.token);
 
     //Retornamos los datos completos del usuario
     return data;

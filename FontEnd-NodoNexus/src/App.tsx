@@ -1,14 +1,16 @@
 import { BrowserRouter, Navigate, Route } from "react-router-dom";
 import "./App.css";
-import { PrivateRoutes, PublicRoutes } from "./models";
-import { AuthGuard } from "./guards";
 import { RouterWithNotFound } from "./utilities";
 import { lazy, Suspense } from "react";
 import { Provider } from "react-redux";
-import store from "./redux/store";
+import store from "./store/store";
+import AuthGuard from "./components/Auth/auth.guard";
+import AdminDashboard from "./pages/Dashboard/AdminDashboard.tsx";
+import { PrivateRoutes, PublicRoutes } from "./router/routes.ts";
+import ClientDashboard from "./pages/Dashboard/ClientDashboard.tsx";
 
-const Login = lazy(() => import("./pages/Login/Login"));
-const Private = lazy(() => import("./pages/Private/Private"));
+const Login = lazy(() => import("./pages/Auth/Login"));
+const Private = lazy(() => import("./router/Private.tsx"));
 
 function App() {
   return (
@@ -20,13 +22,21 @@ function App() {
               <RouterWithNotFound>
                 <Route
                   path="/"
-                  element={<Navigate to={PrivateRoutes.PRIVATE} />}
+                  element={<Navigate to={PublicRoutes.LOGIN} />}
                 />
                 <Route path={PublicRoutes.LOGIN} element={<Login />} />
-                <Route element={<AuthGuard />}>
+                <Route element={<AuthGuard privateValidation={true} />}>
                   <Route
                     path={`${PrivateRoutes.PRIVATE}/*`}
                     element={<Private />}
+                  />
+                  <Route
+                    path={PrivateRoutes.ADMINDASBOARD}
+                    element={<AdminDashboard />}
+                  />
+                  <Route
+                    path={PrivateRoutes.CLIENTDASHBOARD}
+                    element={<ClientDashboard />}
                   />
                 </Route>
               </RouterWithNotFound>
